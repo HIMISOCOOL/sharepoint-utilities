@@ -15,7 +15,9 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "webpack-cli && tsc -p tsconfig.module.json",
+    "deploy": "npm run build && npm run debug",
+    "build": "webpack-cli --config config/webpack.config.js && tsc -p tsconfig.module.json",
+    "debug": "webpack-cli --config config/webpack.debug.config.js",
     "prepublishOnly": "tsc && tsc -p tsconfig.module.json",
     "docs": "typedoc --mode file --theme markdown --includeDeclarations --excludeExternals --out ./docs index.d.ts"
   },
@@ -34,6 +36,7 @@
     "typedoc": "^0.9.0",
     "typedoc-plugin-markdown": "^1.0.12",
     "typescript": "^2.6.2",
+    "uglifyjs-webpack-plugin": "^1.2.2",
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.9"
   },

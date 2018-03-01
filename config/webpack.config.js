@@ -10,8 +10,8 @@ var babelLoader = {
 module.exports = {
     entry: './src/index.ts',
     output: {
-        path: path.resolve(__dirname, './dist'),
-        filename: 'sharepoint-utilities.js',
+        path: path.resolve(__dirname, '../dist'),
+        filename: 'sharepoint-utilities.min.js',
         libraryExport: 'default',
         library: 'sharepointUtilities'
     },
