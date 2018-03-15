@@ -8,8 +8,9 @@ class ClientObjectCollection {
         let index = 0;
         const enumerator = this.getEnumerator();
         while (enumerator.moveNext()) {
-            if (iteratee(enumerator.get_current(), index++, this) === false)
+            if (iteratee(enumerator.get_current(), index++, this) === false) {
                 break;
+            }
         }
     }
     map(iteratee) {
@@ -51,7 +52,7 @@ class ClientObjectCollection {
         return hasitems && val;
     }
     find(iteratee) {
-        let val = undefined;
+        let val;
         this.each((i, item) => {
             if (iteratee(item, i, this)) {
                 val = item;
@@ -69,8 +70,9 @@ class ClientObjectCollection {
     groupBy(iteratee) {
         return this.reduce((result, value) => {
             const key = iteratee(value);
-            if (Object.prototype.hasOwnProperty.call(result, key))
+            if (Object.prototype.hasOwnProperty.call(result, key)) {
                 result[key].push(value);
+            }
             else
                 result[key] = [value];
             return result;
@@ -80,7 +82,7 @@ class ClientObjectCollection {
         return item => {
             for (const prop in source) {
                 let compare_val = source[prop];
-                let value = null;
+                let value;
                 if (item instanceof SP.ListItem) {
                     value = item.get_item(prop);
                     if (value instanceof SP.FieldLookupValue ||
@@ -273,10 +275,10 @@ export function register(log) {
             console.log('SharePoint extensions loaded.');
     });
 }
-const sharepointUtilities = {
+const SharepointUtilities = {
     registerUnhandledErrorHandler,
     registerSodDependency,
     importSod,
     register
 };
-export default sharepointUtilities;
+export default SharepointUtilities;

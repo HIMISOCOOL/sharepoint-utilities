@@ -13,7 +13,7 @@ module.exports = {
         path: path.resolve(__dirname, '../dist'),
         filename: 'sharepoint-utilities.min.js',
         libraryExport: 'default',
-        library: 'sharepointUtilities'
+        library: 'SharepointUtilities'
     },
     module: {
         rules: [

@@ -142,12 +142,15 @@ declare global {
             import(sod: string | string[]): Promise<any>;
         }
     }
+    namespace SharepointUtilities {
+        export function register(): Promise<void>;
+    }
 }
 
 /** Register a callback in the event that a query error goes unhandled. */
 export function registerUnhandledErrorHandler(
     handler: (args: SP.ClientRequestFailedEventArgs) => Promise<any>
-);
-export function registerSodDependency(sod: string, dep: string | string[]);
+): void;
+export function registerSodDependency(sod: string, dep: string | string[]): void;
 export function importSod(sod: string | string[]): Promise<any>;
-export function register();
+export function register(): Promise<void>;

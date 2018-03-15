@@ -1,5 +1,5 @@
 type iterateeFunction<T> = (
-    item?: T,
+    item: T,
     index?: number,
     collection?: IEnumerable<T>
 ) => boolean | void;
@@ -12,23 +12,30 @@ type filterPredicate<T> =
 class ClientObjectCollection<T> implements IEnumerable<T> {
     getEnumerator: () => IEnumerator<T>;
 
-    /** Execute a callback for every element in the matched set. (with a jQuery style callback signature)
-    @param callback The function that will called for each element, and passed an index and the element itself
-    @deprecated use forEach instead! */
-    each?(callback: (index?: number, item?: T) => boolean | void): void {
+    /**
+     * Execute a callback for every element in the matched set. (with a jQuery style callback signature)
+     * @param callback The function that will called for each element, and passed an index and the element itself
+     * @deprecated use forEach instead!
+     */
+    each?(callback: (index: number, item: T) => boolean | void): void {
         return this.forEach((item, i) => {
             callback(i, item);
         });
     }
 
-    /** Execute a callback for every element in the matched set.
-     @param iteratee The function that will called for each element, and passed an index and the element itself */
-    forEach?(iteratee: iterateeFunction<T>): void {
+    /** 
+     * Execute a callback for every element in the matched set.
+     * Returning false breaks out of the loop.
+     * Returning "continue" skips to the end of current iteration.
+     * @param iteratee The function that will called for each element, and passed an index and the element itself
+     */
+    forEach(iteratee: iterateeFunction<T>): void {
         let index = 0;
         const enumerator = this.getEnumerator();
         while (enumerator.moveNext()) {
-            if (iteratee(enumerator.get_current(), index++, this) === false)
+            if (iteratee(enumerator.get_current(), index++, this) === false) {
                 break;
+            }
         }
     }
 
@@ -36,9 +43,10 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
      * Creates an array of values by running each element in collection through iteratee.
      *
      * @param iteratee The function invoked per iteration.
-     * @return Returns the new mapped array. */
-    map?<TResult>(
-        iteratee: (item?: T, index?: number, coll?: IEnumerable<T>) => TResult
+     * @return Returns the new mapped array. 
+     */
+    map<TResult>(
+        iteratee: (item: T, index?: number, coll?: IEnumerable<T>) => TResult
     ): TResult[] {
         let index = -1;
         const enumerator = this.getEnumerator();
@@ -50,7 +58,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
     }
 
     /** Converts a collection to a regular JS array. */
-    toArray?(): T[] {
+    toArray(): T[] {
         const collection: T[] = [];
         this.each((i, item: T) => {
             collection.push(item);
@@ -67,8 +75,9 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
 
     /** Tests whether at least one element in the collection passes the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to test for each element in the collection
-     * @returns true if the callback */
-    some?(iteratee?: iterateeFunction<T>): boolean {
+     * @returns true if the callback 
+     */
+    some?(iteratee: iterateeFunction<T>): boolean {
         let val = false;
         this.each((i, item) => {
             if (iteratee(item, i, this)) {
@@ -81,7 +90,8 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
 
     /** Tests whether all elements in the collection pass the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to test for each element in the collection
-     * @returns true if the callback */
+     * @returns true if the callback 
+     */
     every?(iteratee?: iterateeFunction<T>): boolean {
         let val = true;
         let hasitems = false;
@@ -97,9 +107,10 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
 
     /** Tests whether at least one element in the collection passes the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to execute on each element in the collection
-     * @returns true if the callback */
+     * @returns true if the callback 
+     */
     find?(iteratee?: iterateeFunction<T>): T {
-        let val = undefined;
+        let val: T;
         this.each((i, item) => {
             if (iteratee(item, i, this)) {
                 val = item;
@@ -133,8 +144,9 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
     ): { [group: string]: T[] } {
         return this.reduce((result, value) => {
             const key = iteratee(value);
-            if (Object.prototype.hasOwnProperty.call(result, key))
+            if (Object.prototype.hasOwnProperty.call(result, key)) {
                 result[key].push(value);
+            }
             else result[key] = [value];
             return result;
         }, {});
@@ -144,7 +156,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
         return item => {
             for (const prop in <{ [prop: string]: any }>source) {
                 let compare_val = source[prop];
-                let value = null;
+                let value;
                 if (item instanceof SP.ListItem) {
                     value = item.get_item(prop);
                     if (
@@ -191,23 +203,23 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
     filter?(predicate: filterPredicate<T>): T[] {
         const predicateType = Object.prototype.toString.call(predicate);
         switch (predicateType) {
-            case '[object Function]': {
-                const items = [];
-                const filter = <iterateeFunction<T>>predicate;
-                this.forEach((item, i) => {
-                    if (filter(item, i, this)) items.push(item);
-                });
-                return items;
-            }
+        case '[object Function]': { 
+            const items: T[] = [];
+            const filter = <iterateeFunction<T>>predicate;
+            this.forEach((item, i) => {
+                if (filter(item, i, this)) items.push(item);
+            });
+            return items;
+        }
 
-            case 'object':
-                return this.filter(
-                    this.matches(<{ [prop: string]: any }>predicate)
-                );
+        case 'object':
+            return this.filter(
+                this.matches(<{ [prop: string]: any }>predicate)
+            );
 
-            case 'string':
-            case '[object Array]':
-                return this.filter(this.property(<string | string[]>predicate));
+        case 'string':
+        case '[object Array]':
+            return this.filter(this.property(<string | string[]>predicate));
         }
         return null;
     }
@@ -215,7 +227,7 @@ class ClientObjectCollection<T> implements IEnumerable<T> {
     /** Returns the first element in the collection or null if none
      * @param iteratee An optional function to filter by
      * @return Returns the first item in the collection */
-    firstOrDefault?(iteratee?: iterateeFunction<T>): T {
+    firstOrDefault(iteratee: iterateeFunction<T>): T {
         let index = 0;
         const enumerator = this.getEnumerator();
         if (enumerator.moveNext()) {
@@ -259,8 +271,11 @@ class ClientContext {
 }
 
 class List {
-    /** A shorthand to list.getItems with just the queryText and doesn't require a SP.CamlQuery to be constructed
-     @param queryText the queryText to use for the query.set_ViewXml() call */
+    /**
+     * A shorthand to list.getItems with just the queryText and doesn't
+     * require a SP.CamlQuery to be constructed
+     * @param queryText the queryText to use for the query.set_ViewXml() call
+     */
     get_queryResult(queryText: string): SP.ListItemCollection {
         const query = new SP.CamlQuery();
         query.set_viewXml(queryText);
@@ -281,7 +296,7 @@ class Guid {
 declare var _v_dictSod: { [address: string]: any };
 
 let sodBaseAddress = null;
-const getSodBaseAddress = function() {
+const getSodBaseAddress = function () {
     if (sodBaseAddress) return sodBaseAddress;
 
     if (_v_dictSod['sp.js'] && _v_dictSod['sp.js'].loaded) {
@@ -327,7 +342,7 @@ function importer(sod: string | string[]): Promise<any> {
             }
             SP.SOD.executeOrDelayUntilScriptLoaded(() => {
                 resolve();
-            }, s);
+            },                                     s);
             SP.SOD.executeFunc(s, null, null);
         });
     }
@@ -367,11 +382,11 @@ export function register(log) {
     });
 }
 
-const sharepointUtilities = {
+const SharepointUtilities = {
     registerUnhandledErrorHandler,
     registerSodDependency,
     importSod,
     register
 };
 
-export default sharepointUtilities;
+export default SharepointUtilities;

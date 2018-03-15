@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "A set of convenience methods for SharePoint. Now usable by ie10 via babel and webpack",
   "author": "Dennis George & Matthew Meehan",
-  "main": "./dist/index.js",
+  "main": "./dist/esnext/index.js",
   "types": "index.d.ts",
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "webpack-cli": "^2.0.9"
   },
   "browserslist": [
-    "ie 10"
+    "ie 10",
+    "last 2 versions"
   ]
 }
