@@ -4,7 +4,7 @@
   "description": "A set of convenience methods for SharePoint. Now usable by ie10 via babel and webpack",
   "author": "Dennis George & Matthew Meehan",
   "main": "./dist/esnext/index.js",
-  "types": "index.d.ts",
+  "types": "./src/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/dennispg/sharepoint-utilities.git"
