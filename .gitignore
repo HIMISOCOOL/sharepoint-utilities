@@ -1,4 +1,5 @@
 node_modules
 docs
-index.js
-!dist/index.js
+package-lock.json
+!dist/sharepoint-utilities.js
+!dist/esnext/index.js

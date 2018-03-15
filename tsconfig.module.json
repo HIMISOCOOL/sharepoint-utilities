@@ -2,12 +2,12 @@
     "compilerOptions": {
         "module": "esnext",
         "target": "esnext",
-        "outDir": "dist",
+        "outDir": "dist/esnext",
         "lib": [
             "dom",
             "es6"
         ],
         "removeComments": true
     },
-    "files": [ "index.ts" ]
+    "files": [ "./src/index.ts" ]
 }
