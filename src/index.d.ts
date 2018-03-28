@@ -1,96 +1,127 @@
+/// <reference types="sharepoint" />
 type iterateeFunction<T> = (
-    item?: T,
+    item: T,
     index?: number,
     collection?: IEnumerable<T>
 ) => boolean | void;
+
 type filterPredicate<T> =
     | iterateeFunction<T>
     | { [prop: string]: any }
     | string
     | string[];
 
-declare interface IEnumerable<T> {
-    getEnumerator(): IEnumerator<T>;
+declare interface SharepointUtilities {
+    /**
+     * Execute a callback for every element in the matched set.
+     * Returning false breaks out of the loop.
+     * Returning "continue" skips to the end of current iteration.
+     * @param iteratee The function that will called for each element,
+     * and passed an index and the element itself
+     * @param enumerable The Sharepoint IEnumerable to be iterated over
+     */
+    forEach<T>(iteratee: iterateeFunction<T>, enumerable: IEnumerable<T>): void;
 
-    /** Execute a callback for every element in the matched set. (with a jQuery style callback signature)
-    @param callback The function that will called for each element, and passed an index and the element itself
-    @deprecated use forEach instead! */
-    each?(callback: (index?: number, item?: T) => boolean | void): void;
-
-    /** Execute a callback for every element in the matched set.
-     @param iteratee The function that will called for each element, and passed an index and the element itself */
-    forEach?(iteratee: iterateeFunction<T>): void;
+    /**
+     * @see forEach
+     */
+    forEach<T>(
+        iteratee: iterateeFunction<T>
+    ): (enumerable: IEnumerable<T>) => void;
 
     /**
      * Creates an array of values by running each element in collection through iteratee.
      *
      * @param iteratee The function invoked per iteration.
-     * @return Returns the new mapped array. */
-    map?<TResult>(
-        iteratee: (item?: T, index?: number, coll?: IEnumerable<T>) => TResult
+     * @param enumerable The Sharepoint IEnumerable that to be mapped
+     * @return Returns the new mapped array.
+     */
+    map<T, TResult>(
+        iteratee: (item: T, index?: number, coll?: IEnumerable<T>) => TResult,
+        enumerable: IEnumerable<T>
     ): TResult[];
 
-    /** Converts a collection to a regular JS array. */
-    toArray?(): T[];
-
-    /** Callback for some collection method
-     * @callback iterateeCallback
-     * @param item The current element being processed in the collection
-     * @param {number} index The index of the current element being processed in the collection
-     * @param collection The collection some() was called upon.
+    /**
+     * @see map
      */
+    map<T, TResult>(
+        iteratee: (item: T, index?: number, coll?: IEnumerable<T>) => TResult
+    ): (enumerable: IEnumerable<T>) => TResult[];
 
-    /** Tests whether at least one element in the collection passes the test implemented by the provided function.
+    /**
+     * Converts a collection to a regular JS array.
+     * @param enumerable The Sharepoint enumerable to turn into an array.
+     * @returns The enumerable as an array
+     */
+    toArray: <T>(enumerable: IEnumerable<T>) => T[];
+
+    /**
+     * Tests whether at least one element in the collection passes
+     * the test implemented by the provided function.
+     * @param iteratee Function to test for each element in the collection
+     * @returns true if the callback
+     */
+    some<T>(iteratee: iterateeFunction<T>, enumerable: IEnumerable<T>): boolean;
+
+    /**
+     * @see some
+     */
+    some<T>(
+        iteratee: iterateeFunction<T>
+    ): (enumerable: IEnumerable<T>) => boolean;
+
+    /**
+     * Tests whether all elements in the collection pass the test implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to test for each element in the collection
-     * @returns true if the callback */
-    some?(iteratee?: iterateeFunction<T>): boolean;
+     * @returns true if the callback
+     */
+    every<T>(
+        iteratee: iterateeFunction<T>,
+        enumerable: IEnumerable<T>
+    ): boolean;
 
-    /** Tests whether all elements in the collection pass the test implemented by the provided function.
-     * @param {iterateeCallback} iteratee Function to test for each element in the collection
-     * @returns true if the callback */
-    every?(iteratee?: iterateeFunction<T>): boolean;
+    /**
+     * @see find
+     */
+    every<T>(
+        iteratee: iterateeFunction<T>
+    ): (enumerable: IEnumerable<T>) => boolean;
 
-    /** Tests whether at least one element in the collection passes the test implemented by the provided function.
+    /**
+     * Tests whether at least one element in the collection passes the test
+     * implemented by the provided function.
      * @param {iterateeCallback} iteratee Function to execute on each element in the collection
-     * @returns true if the callback */
-    find?(iteratee?: iterateeFunction<T>): T;
+     * @returns true if the callback
+     */
+    find<T>(iteratee: iterateeFunction<T>, enumerable: IEnumerable<T>): T;
 
     /**
-     * Creates a function that performs a partial deep comparison between a given
-     * object and `source`, returning `true` if the given object has equivalent
-     * property values, else `false`.
-     *
-     * @param {Object} source The object of property values to match.
-     * @returns {Function} Returns the new spec function.
+     * @see find
      */
-    matches?(source: { [prop: string]: any }): iterateeFunction<T>;
+    find<T>(iteratee: iterateeFunction<T>): (enumerable: IEnumerable<T>) => T;
 
     /**
-     * Iterates over elements of `array`, returning an array of all elements
-     * `predicate` returns truthy for. The predicate is invoked with three
-     * arguments: (value, index, array).
-     *
-     * @param {Function} predicate The function invoked per iteration.
-     * @returns {Array} Returns the new filtered array.
+     * Reduces collection to a value which is the accumulated result of running each element in
+     * collection thru iteratee, where each successive invocation is supplied the return value
+     * of the previous.
+     * The iteratee is invoked with four arguments: (accumulator, value, index|key, collection).
+     * @param iteratee
+     * @param accumulator
+     * @param enumerable
      */
-    filter?(predicate: filterPredicate<T>): T[];
-
-    /** Returns the first element in the collection or null if none
-     * @param iteratee An optional function to filter by
-     * @return Returns the first item in the collection */
-    firstOrDefault?(iteratee?: iterateeFunction<T>): T;
+    reduce<T, TResult>(
+        iteratee: (
+            prev: TResult,
+            curr: T,
+            index: number,
+            list: IEnumerable<T>
+        ) => TResult
+    ): (accumulator: TResult, enumerable: IEnumerable<T>) => TResult;
 
     /**
-     * Reduces `collection` to a value which is the accumulated result of running
-     * each element in `collection` thru `iteratee`, where each successive
-     * invocation is supplied the return value of the previous.
-     * The iteratee is invoked with four arguments: (accumulator, value, index|key, collection)
-     *
-     * @param {Function} iteratee The function invoked per iteration.
-     * @param {*} [accumulator] The initial value.
-     * @returns {*} Returns the accumulated value.
+     * @see reduce
      */
-    reduce?<TResult>(
+    reduce<T, TResult>(
         iteratee: (
             prev: TResult,
             curr: T,
@@ -98,59 +129,122 @@ declare interface IEnumerable<T> {
             list: IEnumerable<T>
         ) => TResult,
         accumulator: TResult
-    ): TResult;
+    ): (enumerable: IEnumerable<T>) => TResult;
 
     /**
-     * Creates an object composed of keys generated from the results of running
-     * each element of `collection` thru `iteratee`. The order of grouped values
-     * is determined by the order they occur in `collection`. The corresponding
-     * value of each key is an array of elements responsible for generating the
-     * key. The iteratee is invoked with three arguments: (value, index, collection).
-     *
-     * @param {Function} iteratee The iteratee to transform keys.
-     * @returns {Object} Returns the composed aggregate object.
+     * @see reduce
      */
-    groupBy?(
-        iteratee?: (
+    reduce<T, TResult>(
+        iteratee: (
+            prev: TResult,
+            curr: T,
+            index: number,
+            list: IEnumerable<T>
+        ) => TResult
+    ): (accumulator: TResult) => (enumerable: IEnumerable<T>) => TResult;
+
+    /**
+     * Creates an object composed of keys generated from the results of running each element of
+     * collection thru iteratee. The order of grouped values is determined by the order they occur
+     * in collection. The corresponding value of each key is an array of elements responsible for
+     * generating the key. The iteratee is invoked with three arguments: (value, index, collection).
+     * @param iteratee
+     * @param enumerable
+     */
+    groupBy<T>(
+        iteratee: (
+            value: T,
+            index?: number,
+            collection?: IEnumerable<T>
+        ) => string | number,
+        enumerable: IEnumerable<T>
+    ): { [group: string]: T[] };
+
+    /**
+     * @see groupBy
+     */
+    groupBy<T>(
+        iteratee: (
             value: T,
             index?: number,
             collection?: IEnumerable<T>
         ) => string | number
-    ): { [group: string]: T[] };
+    ): (enumerable: IEnumerable<T>) => { [group: string]: T[] };
+
+    /**
+     * Iterates over elements of collection, returning an array of all
+     * elements predicate returns truthy for.
+     * The predicate is invoked with three arguments: (value, index|key, collection)
+     * @param predicate
+     * @param enumerable
+     */
+    filter<T>(predicate: filterPredicate<T>, enumerable: IEnumerable<T>): T[];
+
+    /**
+     * @see filter
+     */
+    filter<T>(
+        predicate: filterPredicate<T>
+    ): (enumerable: IEnumerable<T>) => T[];
+
+    /**
+     * Returns the first element in the collection or null if none
+     * @param iteratee A function to filter by
+     * @param enumerable The Sharepoint Enumerable to run on
+     * @return Returns the first item in the collection
+     */
+    firstOrDefault<T>(
+        iteratee: iterateeFunction<T>,
+        enumerable: IEnumerable<T>
+    ): T | null;
+
+    /**
+     * @see firstOrDefault
+     */
+    firstOrDefault<T>(
+        iteratee: iterateeFunction<T>
+    ): (enumerable: IEnumerable<T>) => T | null;
+
+    // /**
+    //  * A shorthand for context.executeQueryAsync except wrapped as a JS Promise object
+    //  * @param context the current Sharepoint Context
+    //  * @param rejectionHandler an optional rejectionHandler
+    //  */
+    // executeQuery: (
+    //     context: SP.ClientContext,
+    //     rejectionHandler?: (
+    //         args: SP.ClientRequestFailedEventArgs
+    //     ) => Promise<any>
+    // ) => Promise<any>;
+
+    /**
+     * Executes the query loaded into the supplied client context via jquery promises.
+     * Promise is resolved with `data` followed by the optional 
+     * `args` and `sender` of the succeed callback on the query.
+     * If the promise is rejected the reject is invoked with the failed callback's `args` and `sender`
+     * @param context the context to execute the query on.
+     * @param data the object for the data being retrieved by the query,
+     * to be passed to resolve the promise.
+     */
+    executeQuery$<T>(context: SP.ClientContext, data: T): JQueryPromise<T>;
+
+    /**
+     * @see executeQuery$
+     */
+    executeQuery$<T>(context: SP.ClientContext): (data: T) => JQueryPromise<T>;
+
+    /**
+     * A shorthand to list.getItems with just the queryText and doesn't
+     * require a SP.CamlQuery to be constructed
+     * @param queryText the queryText to use for the query.set_ViewXml() call
+     * @param list the list to execute the query on
+     */
+    getQueryResult(queryText: string, list: SP.List): SP.ListItemCollection;
+
+    /**
+     * @see getQueryResult
+     */
+    getQueryResult(queryText: string): (list: SP.List) => SP.ListItemCollection;
 }
 
-declare global {
-    namespace SP {
-        export interface ClientObjectCollection<T> extends IEnumerable<T> {}
-
-        export interface ClientRuntimeContext {
-            /** A shorthand for context.executeQueryAsync except wrapped as a JS Promise object */
-            executeQuery(): Promise<ClientRequestSucceededEventArgs>;
-        }
-
-        export interface List {
-            /** A shorthand to list.getItems with just the queryText and doesn't require a SP.CamlQuery to be constructed
-             @param queryText the queryText to use for the query.set_ViewXml() call */
-            get_queryResult<T = any>(queryText: string): ListItemCollection<T>;
-        }
-
-        namespace Guid {
-            export function generateGuid(): string;
-        }
-
-        export interface SOD {
-            import(sod: string | string[]): Promise<any>;
-        }
-    }
-    namespace SharepointUtilities {
-        export function register(): Promise<void>;
-    }
-}
-
-/** Register a callback in the event that a query error goes unhandled. */
-export function registerUnhandledErrorHandler(
-    handler: (args: SP.ClientRequestFailedEventArgs) => Promise<any>
-): void;
-export function registerSodDependency(sod: string, dep: string | string[]): void;
-export function importSod(sod: string | string[]): Promise<any>;
-export function register(): Promise<void>;
+export default SharepointUtilities;

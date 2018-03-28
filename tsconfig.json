@@ -3,11 +3,9 @@
         "module": "commonjs",
         "target": "es5",
         "outDir": "dist",
-        "lib": [
-            "dom",
-            "es6"
-        ],
-        "removeComments": true
+        "lib": ["dom", "es6"],
+        "removeComments": true,
+        "allowSyntheticDefaultImports": true
     },
-    "files": [ "./src/index.ts" ]
+    "files": ["./src/index.ts"]
 }
